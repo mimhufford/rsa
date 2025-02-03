@@ -1,6 +1,9 @@
 main :: ()
 {
-    p, q : u64;
+    // TODO: I didn't think random needed seeding, is Windows different to Linux?
+    random_seed(cast,force(u64)to_milliseconds(current_time_monotonic()));
+
+    p, q := 0;
 
     while p == q
     {
@@ -10,17 +13,30 @@ main :: ()
 
     n := p * q;
     l := lcm(p - 1, q - 1);
-    e := cast(u64)3;
-    // d := calculate_d(e, l);
+
+    e := calculate_e(l);
+    d := calculate_d(e, l);
 
     print("p = %\n", p);
     print("q = %\n", q);
+    print("n = %\n", n);
     print("l = %\n", l);
     print("e = %\n", e);
-    // print("d = %\n", d);
+    print("d = %\n", d);
 }
 
-is_prime :: (n: u64) -> bool
+calculate_e :: (l: s64) -> s64
+{
+    while true
+    {
+        e := 3 + cast(s64)(random_get() % 0xFFFF) % (l - 3);
+        if gcd(e, l) == 1 return e;
+    }
+
+    return 0;
+}
+
+is_prime :: (n: s64) -> bool
 {
     // TODO: use the sqrt trick
     for i: 2..n/2 if n % i == 0 return false;
@@ -28,51 +44,30 @@ is_prime :: (n: u64) -> bool
 	return true;
 }
 
-get_random_prime_number :: () -> u64
+get_random_prime_number :: () -> s64
 {
     while true
     {
-        // TODO: I didn't think random needed seeding, is Windows different to Linux?
-        n := random_get() % 0xFFFF;
+        n := cast(s64)(random_get() % 0xFFFF);
         if is_prime(n) return n;
     }
 
     return 0;
 }
 
-// TODO
-calculate_d :: (_e: u64, l: u64) -> u64
+// TODO: use the extended euclid method
+calculate_d :: (e: s64, l: s64) -> s64
 {
-    e := _e;
-    d := cast(u64)1;
-	eprev := cast(u64)1;
-    dprev := cast(u64)1;
-    etemp : u64;
-    dtemp : u64;
-
-	eprev = l;
-    dprev = l;
-
-	while e != 1
-	{
-		etemp = e;
-		dtemp = d;
-		e = eprev - eprev / etemp * e;
-		d = dprev - eprev / etemp * d;
-		eprev = etemp;
-		dprev = dtemp;
-		while d < 0 d += l;
-	}
-
-	return d;
+    for d: 1..1000000 if d * e == 1 % l return d;
+    return 0;
 }
 
-lcm :: (a: u64, b: u64) -> u64
+lcm :: (a: s64, b: s64) -> s64
 {
     return a / gcd(a, b) * b;
 }
 
-gcd :: (a: u64, b: u64) -> u64
+gcd :: (a: s64, b: s64) -> s64
 {
     if b return gcd(b, a % b);
     return a;
