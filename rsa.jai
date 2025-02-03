@@ -38,9 +38,8 @@ calculate_e :: (l: s64) -> s64
 
 is_prime :: (n: s64) -> bool
 {
-    // TODO: use the sqrt trick
-    for i: 2..n/2 if n % i == 0 return false;
-
+    sqrt_n := cast(s64)ceil(sqrt(cast(float)n));
+    for i: 2..sqrt_n if n % i == 0 return false;
 	return true;
 }
 
@@ -75,5 +74,6 @@ gcd :: (a: s64, b: s64) -> s64
 
 #scope_file
 
+#import "Math";
 #import "Basic";
 #import "Random";
