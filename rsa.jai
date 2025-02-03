@@ -20,6 +20,8 @@ main :: ()
     print("d = %\n", d);
 }
 
+#scope_file
+
 calculate_e :: (l: s64) -> s64
 {
     while true
@@ -66,8 +68,6 @@ gcd :: (a: s64, b: s64) -> s64
     if b return gcd(b, a % b);
     return a;
 }
-
-#scope_file
 
 #import "Math";
 #import "Basic";
