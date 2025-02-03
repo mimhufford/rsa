@@ -1,28 +1,29 @@
 main :: ()
 {
-    // TODO: make sure p and q are different
-    p := get_random_prime_number();
-    q := get_random_prime_number();
+    p, q : u64;
+
+    while p == q
+    {
+        p = get_random_prime_number();
+        q = get_random_prime_number();
+    }
+
     n := p * q;
     l := lcm(p - 1, q - 1);
     e := cast(u64)3;
-    d := calculate_d(e, l);
+    // d := calculate_d(e, l);
 
     print("p = %\n", p);
     print("q = %\n", q);
     print("l = %\n", l);
     print("e = %\n", e);
-    print("d = %\n", d);
+    // print("d = %\n", d);
 }
 
 is_prime :: (n: u64) -> bool
 {
-    i : u64 = 2;
-    while i <= n / 2
-    {
-        if n % i == 0 return false;
-        i += 1;
-    }
+    // TODO: use the sqrt trick
+    for i: 2..n/2 if n % i == 0 return false;
 
 	return true;
 }
@@ -39,12 +40,13 @@ get_random_prime_number :: () -> u64
     return 0;
 }
 
+// TODO
 calculate_d :: (_e: u64, l: u64) -> u64
 {
     e := _e;
     d := cast(u64)1;
-	eprev : u64;
-    dprev : u64;
+	eprev := cast(u64)1;
+    dprev := cast(u64)1;
     etemp : u64;
     dtemp : u64;
 
