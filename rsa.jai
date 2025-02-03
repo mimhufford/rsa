@@ -3,14 +3,9 @@ main :: ()
     // TODO: I didn't think random needed seeding, is Windows different to Linux?
     random_seed(cast,force(u64)to_milliseconds(current_time_monotonic()));
 
-    p, q := 0;
-
-    while p == q
-    {
-        p = get_random_prime_number();
-        q = get_random_prime_number();
-    }
-
+    p := get_random_prime_number();
+    q := get_random_prime_number();
+    while p == q  q = get_random_prime_number();
     n := p * q;
     l := lcm(p - 1, q - 1);
 
