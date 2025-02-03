@@ -22,6 +22,7 @@ main :: ()
 
 #scope_file
 
+// TODO: Most people just use a constant for this? (65537)
 calculate_e :: (l: s64) -> s64
 {
     while true
