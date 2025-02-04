@@ -1,7 +1,9 @@
 main :: ()
 {
-    a := big_int("15");
-    b := big_int("12");
+    random_seed(cast,force(u64)to_milliseconds(current_time_monotonic()));
+
+    a := random_big_int(2);
+    b := random_big_int(2);
 
     print("======= Big_Int tests =======\n");
     print("a = ");        print(a);
@@ -33,3 +35,4 @@ main :: ()
 #import "Big_Int";
 #import "RSA";
 #import "Basic";
+#import "Random";
