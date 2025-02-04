@@ -5,36 +5,17 @@ main :: ()
 
     p, q := get_prime_pair();
     n := p * q;
-    r := (p - 1) * (q - 1);
     e := 65537;
-    d := calculate_d(e, r);
+    d := calculate_d(e, (p-1)*(q-1));
 
     print("p = %\n", p);
     print("q = %\n", q);
-    print("n = %\n", n);
-    print("r = %\n", r);
-    print("e = %\n", e);
-    print("d = %\n", d);
+    print("public  n = %\n", n);
+    print("public  e = %\n", e);
+    print("private d = %\n", d);
 }
 
 #scope_file
-
-extended_euclidean_algorithm :: (a: s64, b: s64) -> s64
-{
-    old_r, r := a, b;
-    old_s, s := 1, 0;
-    old_t, t := 0, 1;
-    
-    while r != 0
-    {
-        quotient := old_r / r;
-        old_r, r = r, old_r - quotient * r;
-        old_s, s = s, old_s - quotient * s;
-        old_t, t = t, old_t - quotient * t;
-    }
-    
-    return old_r;
-}
 
 is_prime :: (n: s64) -> bool
 {
@@ -64,18 +45,18 @@ get_random_prime_number :: () -> s64
 
 calculate_d :: (e: s64, r: s64) -> s64
 {
-    return (extended_euclidean_algorithm(e, r) + r) % r;
-}
+    m, a, y, x := r, e, 0, 1;
 
-lcm :: (a: s64, b: s64) -> s64
-{
-    return a / gcd(a, b) * b;
-}
+    while a > 1
+    {
+        q, t := a / m, m;
+        m, a, t = a % m, t, y;
+        y, x = x - q * y, t;
+    }
 
-gcd :: (a: s64, b: s64) -> s64
-{
-    if b return gcd(b, a % b);
-    return a;
+    if x < 0 x += r;
+
+    return x;
 }
 
 #import "Math";
