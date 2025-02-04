@@ -66,6 +66,16 @@ operator == :: inline (a: Big_Int, b: Big_Int) -> bool
     return true;
 }
 
+operator * :: inline (a: Big_Int, b: Big_Int) -> Big_Int
+{
+    result : Big_Int;
+    max_size := a.digits.count + b.digits.count;
+    array_resize(*result.digits, max_size);
+
+    remove_any_leading_zeros(*result);
+    return result;
+}
+
 operator - :: inline (a: Big_Int, b: Big_Int) -> Big_Int
 {
     if a.negative != b.negative

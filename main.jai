@@ -13,6 +13,7 @@ main :: ()
     print("a >= b = ");   print("%\n", a >= b);
     print("a + b = ");    print(a + b);
     print("a - b = ");    print(a - b);
+    print("a * b = ");    print(a * b);
 }
 
 #import "Big_Int";
