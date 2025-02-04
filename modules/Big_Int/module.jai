@@ -16,6 +16,21 @@ Big_Int :: struct
     digits : [..]u8;
 }
 
+big_int :: (n: s64) -> Big_Int
+{
+    result : Big_Int;
+    result.negative = n < 0;
+    
+    value := ifx n < 0 then -n else n;
+    while value
+    {
+        array_insert_at(*result.digits, cast(u8, value % 10), 0);
+        value /= 10;
+    }
+
+    return result;
+}
+
 big_int :: (s: string) -> Big_Int, bool
 {
     if s.count == 0 return .{}, true;
@@ -67,6 +82,7 @@ operator == :: inline (a: Big_Int, b: Big_Int) -> bool
     return true;
 }
 
+operator * :: inline (a: Big_Int, b: s64) -> Big_Int { return a * big_int(b); }
 operator * :: inline (a: Big_Int, b: Big_Int) -> Big_Int
 {
     result : Big_Int;
@@ -88,12 +104,14 @@ operator * :: inline (a: Big_Int, b: Big_Int) -> Big_Int
     return result;
 }
 
+operator % :: inline (a: Big_Int, b: s64) -> Big_Int { return a % big_int(b); }
 operator % :: inline (a: Big_Int, b: Big_Int) -> Big_Int
 {
     quotient, remainder := a / b;
     return remainder;
 }
 
+operator / :: inline (a: Big_Int, b: s64) -> Big_Int { return a / big_int(b); }
 operator / :: inline (a: Big_Int, b: Big_Int) -> Big_Int, Big_Int
 {
     if !b.digits.count assert(false, "Attempt to divide by 0");
@@ -122,6 +140,7 @@ operator / :: inline (a: Big_Int, b: Big_Int) -> Big_Int, Big_Int
     return quotient, remainder;
 }
 
+operator - :: inline (a: Big_Int, b: s64) -> Big_Int { return a - big_int(b); }
 operator - :: inline (a: Big_Int, b: Big_Int) -> Big_Int
 {
     if a.negative != b.negative
@@ -164,6 +183,7 @@ operator - :: inline (a: Big_Int, b: Big_Int) -> Big_Int
     return result;
 }
 
+operator + :: inline (a: Big_Int, b: s64) -> Big_Int { return a + big_int(b); }
 operator + :: inline (a: Big_Int, b: Big_Int) -> Big_Int
 {
     if a.negative == b.negative return add_same_signed_numbers(a, b);
