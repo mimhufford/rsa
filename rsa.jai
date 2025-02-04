@@ -8,11 +8,14 @@ main :: ()
     e := 65537;
     d := calculate_d(e, (p-1)*(q-1));
 
-    print("p = %\n", p);
-    print("q = %\n", q);
-    print("public  n = %\n", n);
-    print("public  e = %\n", e);
-    print("private d = %\n", d);
+    print("=================\n");
+    print(" p = %\n", p);
+    print(" q = %\n", q);
+    print("=================\n");
+    print(" public  n = %\n", n);
+    print(" public  e = %\n", e);
+    print(" private d = %\n", d);
+    print("=================\n");
 }
 
 #scope_file
@@ -26,6 +29,7 @@ is_prime :: (n: s64) -> bool
 
 get_prime_pair :: () -> s64, s64
 {
+    // TODO: the difference between the two primes has to not be too small
     p := get_random_prime_number();
     q := get_random_prime_number();
     while p == q  q = get_random_prime_number();
@@ -36,8 +40,8 @@ get_random_prime_number :: () -> s64
 {
     while true
     {
-        // TODO: currently the 0x0FFF_FFFF limits the resulting p*q value to be representable by s64 
-        n := cast(s64)(random_get() % 0x0FFF_FFFF);
+        // TODO: currently 3037000499 limits the resulting p*q value to be representable by s64 
+        n := cast(s64)(random_get() % 3037000499);
         if is_prime(n) return n;
     }
 
