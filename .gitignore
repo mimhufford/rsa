@@ -1,6 +1,5 @@
 .build/
 *.code-workspace
-rsa
-bigint
 *.pdb
 *.exe
+main
