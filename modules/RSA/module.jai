@@ -15,7 +15,7 @@ is_prime :: (n: Big_Int) -> bool
 {
     limit := n / big_int("2");
     i := big_int("2");
-    while i < limit
+    while i <= limit
     {
         if n % i == big_int("0") return false;
         i = i + big_int("1");
