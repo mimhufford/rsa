@@ -15,6 +15,8 @@ main :: ()
     print("a <= b = "); print("%\n", a <= b);
     print("a >  b = "); print("%\n", a > b);
     print("a >= b = "); print("%\n", a >= b);
+    print("-a = "); print(-a);
+    print("-b = "); print(-b);
 
     print("a + b = ");
     print(a + b);
@@ -87,6 +89,14 @@ operator == :: inline (a: Big_Int, b: Big_Int) -> bool
     return true;
 }
 
+operator - :: inline (n: Big_Int) -> Big_Int
+{
+    result : Big_Int;
+    result.negative = !n.negative;
+    array_add(*result.digits, ..n.digits);
+    return result;
+}
+
 operator - :: inline (a: Big_Int, b: Big_Int) -> Big_Int
 {
     assert(!a.negative && !b.negative);
@@ -101,39 +111,32 @@ operator - :: inline (a: Big_Int, b: Big_Int) -> Big_Int
 
 operator + :: inline (a: Big_Int, b: Big_Int) -> Big_Int
 {
+    // TODO: using unary - makes a deep copy of the digits array which isn't actually needed here
+    if a.negative != b.negative return ifx a.negative then b-(-a) else a-(-b);
+
     result : Big_Int;
+    result.negative = a.negative;
+    max_size := 1 + max(a.digits.count, b.digits.count);
+    array_resize(*result.digits, max_size);
 
-    if a.negative == b.negative
+    a_index := a.digits.count - 1;
+    b_index := b.digits.count - 1;
+    r_index := max_size - 1;
+
+    carry : u8 = 0;
+    while a_index >= 0 || b_index >= 0
     {
-        result.negative = a.negative;
-        max_size := 1 + max(a.digits.count, b.digits.count);
-        array_resize(*result.digits, max_size);
+        defer a_index, b_index, r_index -= 1;
 
-        a_index := a.digits.count - 1;
-        b_index := b.digits.count - 1;
-        r_index := max_size - 1;
-
-        carry : u8 = 0;
-        while a_index >= 0 || b_index >= 0
-        {
-            defer a_index, b_index, r_index -= 1;
-
-            a_value := ifx a_index >= 0 then a.digits[a_index];
-            b_value := ifx b_index >= 0 then b.digits[b_index];
-            next_digit := a_value + b_value + carry;
-            carry = ifx next_digit > 9 then cast(u8)1;
-            next_digit %= 10;
-            result.digits[r_index] = next_digit;
-        }
-
-        result.digits[0] = carry;
-    }
-    else
-    {
-        // TODO: handle negatives
-        assert(false);
+        a_value := ifx a_index >= 0 then a.digits[a_index];
+        b_value := ifx b_index >= 0 then b.digits[b_index];
+        next_digit := a_value + b_value + carry;
+        carry = ifx next_digit > 9 then cast(u8)1;
+        next_digit %= 10;
+        result.digits[r_index] = next_digit;
     }
 
+    result.digits[0] = carry;
     remove_any_leading_zeros(*result);
     return result;
 }
