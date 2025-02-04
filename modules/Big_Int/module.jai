@@ -7,6 +7,24 @@ print :: (n: Big_Int)
     print("\n");
 }
 
+random_big_int :: (number_of_digits: s64) -> Big_Int
+{
+    result : Big_Int;
+    array_resize(*result.digits, number_of_digits);
+
+    for i: 0..number_of_digits-1
+    {
+        result.digits[i] = cast(u8)(random_get() % 10);
+    }
+
+    while result.digits[0] == 0
+    {
+        result.digits[0] = cast(u8)(random_get() % 10);
+    }
+
+    return result;
+}
+
 Big_Int :: struct
 {
     negative : bool;
@@ -200,8 +218,8 @@ operator + :: inline (a: Big_Int, b: Big_Int) -> Big_Int
     return lhs - rhs;
 }
 
-// TODO: this should be in scope_file, but the way I'm doing random generation
-//       in the RSA module requires it to be available at the moment
+#scope_file
+
 remove_any_leading_zeros :: (n: *Big_Int)
 {
     while n.digits.count && n.digits[0] == 0
@@ -209,8 +227,6 @@ remove_any_leading_zeros :: (n: *Big_Int)
         array_ordered_remove_by_index(*n.digits, 0);
     }
 }
-
-#scope_file
 
 // NOTE: this has to be a seperate procedure due to the circular dependency between binary+ and binary-
 add_same_signed_numbers :: inline (a: Big_Int, b: Big_Int) -> Big_Int
@@ -245,3 +261,4 @@ add_same_signed_numbers :: inline (a: Big_Int, b: Big_Int) -> Big_Int
 }
 
 #import "Basic";
+#import "Random";
