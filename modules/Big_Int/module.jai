@@ -174,8 +174,8 @@ operator + :: inline (a: Big_Int, b: Big_Int) -> Big_Int
     return lhs - rhs;
 }
 
-#scope_file
-
+// TODO: this should be in scope_file, but the way I'm doing random generation
+//       in the RSA module requires it to be available at the moment
 remove_any_leading_zeros :: (n: *Big_Int)
 {
     while n.digits.count && n.digits[0] == 0
@@ -183,6 +183,8 @@ remove_any_leading_zeros :: (n: *Big_Int)
         array_ordered_remove_by_index(*n.digits, 0);
     }
 }
+
+#scope_file
 
 // NOTE: this has to be a seperate procedure due to the circular dependency between binary+ and binary-
 add_same_signed_numbers :: inline (a: Big_Int, b: Big_Int) -> Big_Int

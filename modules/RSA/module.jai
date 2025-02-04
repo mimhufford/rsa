@@ -1,3 +1,16 @@
+generate_keys :: () -> Big_Int, Big_Int, Big_Int, Big_Int, Big_Int
+{
+    random_seed(cast,force(u64)to_milliseconds(current_time_monotonic()));
+
+    p, q := get_prime_pair();
+    n := p * q;
+    e := big_int("65537");
+    d := calculate_d(e, (p - big_int("1")) * (q - big_int("1")));
+    return p, q, n, e, d;
+}
+
+#scope_file
+
 is_prime :: (n: Big_Int) -> bool
 {
     limit := n / big_int("2");
@@ -28,7 +41,9 @@ get_random_prime_number :: () -> Big_Int
     while true
     {
         for i: 0..p.digits.count-1 p.digits[i] = cast(u8)(random_get() % 10);
-        if is_prime(p) return p;
+        if !is_prime(p) continue;
+        remove_any_leading_zeros(*p); // TODO: this should be done by Big_Int
+        return p;
     }
 
     return big_int("0");
@@ -52,8 +67,6 @@ calculate_d :: (e: Big_Int, r: Big_Int) -> Big_Int
 
     return x;
 }
-
-#scope_file
 
 #import "Big_Int";
 #import "Basic";
