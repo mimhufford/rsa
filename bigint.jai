@@ -1,6 +1,6 @@
 main :: ()
 {
-    a := big_int("1");
+    a := big_int("90");
     b := big_int("-90");
 
     print("a = ");
@@ -64,6 +64,8 @@ operator <= :: inline (a: Big_Int, b: Big_Int) -> bool { return !(a > b); }
 operator >= :: inline (a: Big_Int, b: Big_Int) -> bool { return !(a < b); }
 operator <  :: inline (a: Big_Int, b: Big_Int) -> bool
 {
+    if a.negative && !b.negative return true;
+    if !a.negative && b.negative return false;
     if a.digits.count < b.digits.count return true;
     if b.digits.count < a.digits.count return false;
 
@@ -79,6 +81,7 @@ operator <  :: inline (a: Big_Int, b: Big_Int) -> bool
 operator != :: inline (a: Big_Int, b: Big_Int) -> bool { return !(a == b); }
 operator == :: inline (a: Big_Int, b: Big_Int) -> bool
 {
+    if a.negative != b.negative return false;
     if a.digits.count != b.digits.count return false;
 
     for i: 0..a.digits.count-1
