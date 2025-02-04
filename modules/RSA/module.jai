@@ -1,7 +1,5 @@
 generate_keys :: () -> Big_Int, Big_Int, Big_Int, Big_Int, Big_Int
 {
-    random_seed(cast,force(u64)to_milliseconds(current_time_monotonic()));
-
     p, q := get_prime_pair();
     n := p * q;
     e := big_int(65537);
@@ -35,15 +33,11 @@ get_prime_pair :: () -> Big_Int, Big_Int
 
 get_random_prime_number :: () -> Big_Int
 {
-    p : Big_Int;
-    array_resize(*p.digits, 2);
-
     while true
     {
-        for i: 0..p.digits.count-1 p.digits[i] = cast(u8)(random_get() % 10);
-        if !is_prime(p) continue;
-        remove_any_leading_zeros(*p); // TODO: this should be done by Big_Int
-        return p;
+        candidate := random_big_int(2);
+        if !is_prime(candidate) continue;
+        return candidate;
     }
 
     return big_int(0);
