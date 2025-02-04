@@ -195,9 +195,27 @@ operator - :: inline (a: Big_Int, b: Big_Int) -> Big_Int
 
         a_value := ifx a_index >= 0 then lhs.digits[a_index];
         b_value := ifx b_index >= 0 then rhs.digits[b_index];
-        a_value -= borrow;
-        borrow = ifx a_value < b_value then cast(u8)1;
-        a_value += ifx a_value < b_value then cast(u8)10;
+        
+        if borrow > 0
+        {
+            if a_value == 0
+            {
+                a_value = 9;
+                borrow = 1;
+            }
+            else
+            {
+                a_value -= 1;
+                borrow = 0;
+            }
+        }
+
+        if a_value < b_value
+        {
+            a_value += 10;
+            borrow = 1;
+        }
+
         result.digits[r_index] = a_value - b_value;
     }
 
