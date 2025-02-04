@@ -88,6 +88,12 @@ operator * :: inline (a: Big_Int, b: Big_Int) -> Big_Int
     return result;
 }
 
+operator % :: inline (a: Big_Int, b: Big_Int) -> Big_Int
+{
+    quotient, remainder := a / b;
+    return remainder;
+}
+
 operator / :: inline (a: Big_Int, b: Big_Int) -> Big_Int, Big_Int
 {
     if !b.digits.count assert(false, "Attempt to divide by 0");
