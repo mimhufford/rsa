@@ -1,7 +1,7 @@
 main :: ()
 {
     a := big_int("90");
-    b := big_int("-90");
+    b := big_int("90");
 
     print("a = ");
     print(a);
@@ -30,6 +30,7 @@ print :: (n: Big_Int)
 {
     if n.negative print("-");
     for n.digits print("%", it);
+    if !n.digits.count print("0");
     print("\n");
 }
 
@@ -112,9 +113,39 @@ operator - :: inline (a: Big_Int, b: Big_Int) -> Big_Int
         return result;
     }
 
+    lhs := ifx a < b then b else a;
+    rhs := ifx a < b then a else b;
+
     result : Big_Int;
     max_size := max(a.digits.count, b.digits.count);
     array_resize(*result.digits, max_size);
+
+    a_index := lhs.digits.count - 1;
+    b_index := rhs.digits.count - 1;
+    r_index := max_size - 1;
+
+    borrow : u8 = 0;
+    while a_index >= 0 || b_index >= 0
+    {
+        defer a_index, b_index, r_index -= 1;
+
+        a_value := ifx a_index >= 0 then lhs.digits[a_index];
+        b_value := ifx b_index >= 0 then rhs.digits[b_index];
+        a_value -= borrow;
+        if a_value < b_value
+        {
+            a_value += 10;
+            borrow = 1;
+        }
+        else
+        {
+            borrow = 0;
+        }
+
+        result.digits[r_index] = a_value - b_value;
+    }
+
+    result.negative = a < b;
 
     remove_any_leading_zeros(*result);
     return result;
