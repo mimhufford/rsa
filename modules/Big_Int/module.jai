@@ -49,6 +49,10 @@ big_int :: (s: string) -> Big_Int, bool
     return result, true;
 }
 
+operator >  :: inline (a: Big_Int, b: s64) -> bool { return a > big_int(b); }
+operator <= :: inline (a: Big_Int, b: s64) -> bool { return a <= big_int(b); }
+operator >= :: inline (a: Big_Int, b: s64) -> bool { return a >= big_int(b); }
+operator <  :: inline (a: Big_Int, b: s64) -> bool { return a < big_int(b); }
 operator >  :: inline (a: Big_Int, b: Big_Int) -> bool { return b < a; }
 operator <= :: inline (a: Big_Int, b: Big_Int) -> bool { return !(a > b); }
 operator >= :: inline (a: Big_Int, b: Big_Int) -> bool { return !(a < b); }
@@ -68,7 +72,9 @@ operator <  :: inline (a: Big_Int, b: Big_Int) -> bool
     return false;
 }
 
+operator != :: inline (a: Big_Int, b: s64) -> bool { return a != big_int(b); }
 operator != :: inline (a: Big_Int, b: Big_Int) -> bool { return !(a == b); }
+operator == :: inline (a: Big_Int, b: s64) -> bool { return a == big_int(b); }
 operator == :: inline (a: Big_Int, b: Big_Int) -> bool
 {
     if a.negative != b.negative return false;
