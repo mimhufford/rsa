@@ -30,6 +30,7 @@ big_int :: (s: string) -> Big_Int, bool
         array_add(*result.digits, c - #char "0");
     }
 
+    remove_any_leading_zeros(*result);
     return result, true;
 }
 
@@ -70,8 +71,7 @@ operator * :: inline (a: Big_Int, b: Big_Int) -> Big_Int
 {
     result : Big_Int;
     result.negative = a.negative != b.negative;
-    max_size := a.digits.count + b.digits.count;
-    array_resize(*result.digits, max_size);
+    array_resize(*result.digits, a.digits.count + b.digits.count);
 
     for #v2 < i: 0..a.digits.count-1
     {
@@ -86,6 +86,34 @@ operator * :: inline (a: Big_Int, b: Big_Int) -> Big_Int
 
     remove_any_leading_zeros(*result);
     return result;
+}
+
+operator / :: inline (a: Big_Int, b: Big_Int) -> Big_Int, Big_Int
+{
+    if !b.digits.count assert(false, "Attempt to divide by 0");
+
+    quotient, remainder : Big_Int;
+    quotient.negative = a.negative != b.negative;
+    divisor := Big_Int.{ negative = false, digits = b.digits };
+
+    for d: a.digits
+    {
+        array_add(*remainder.digits, d);
+
+        remove_any_leading_zeros(*remainder);
+
+        count : u8 = 0;
+        while remainder >= divisor
+        {
+            remainder = remainder - divisor;
+            count += 1;
+        }
+
+        array_add(*quotient.digits, count);
+    }
+
+    remove_any_leading_zeros(*quotient);
+    return quotient, remainder;
 }
 
 operator - :: inline (a: Big_Int, b: Big_Int) -> Big_Int
