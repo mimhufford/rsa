@@ -4,8 +4,8 @@ generate_keys :: () -> Big_Int, Big_Int, Big_Int, Big_Int, Big_Int
 
     p, q := get_prime_pair();
     n := p * q;
-    e := big_int("65537");
-    d := calculate_d(e, (p - big_int("1")) * (q - big_int("1")));
+    e := big_int(65537);
+    d := calculate_d(e, (p - 1) * (q - 1));
     return p, q, n, e, d;
 }
 
@@ -13,12 +13,12 @@ generate_keys :: () -> Big_Int, Big_Int, Big_Int, Big_Int, Big_Int
 
 is_prime :: (n: Big_Int) -> bool
 {
-    limit := n / big_int("2");
-    i := big_int("2");
+    limit := n / 2;
+    i := big_int(2);
     while i <= limit
     {
-        if n % i == big_int("0") return false;
-        i = i + big_int("1");
+        if n % i == 0 return false;
+        i = i + 1;
     }
 	return true;
 }
@@ -46,21 +46,21 @@ get_random_prime_number :: () -> Big_Int
         return p;
     }
 
-    return big_int("0");
+    return big_int(0);
 }
 
 calculate_d :: (e: Big_Int, r: Big_Int) -> Big_Int
 {
-    m, a, y, x := r, e, big_int("0"), big_int("1");
+    m, a, y, x := r, e, big_int(0), big_int(1);
 
-    while a > big_int("1")
+    while a > 1
     {
         q, t := a / m, m;
         m, a, t = a % m, t, y;
         y, x = x - q * y, t;
     }
 
-    if x < big_int("0")
+    if x < 0
     {
         x = x + r;
     } 
