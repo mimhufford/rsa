@@ -36,7 +36,8 @@ get_random_prime_number :: () -> s64
 {
     while true
     {
-        n := cast(s64)(random_get() % 0xFFFF);
+        // TODO: currently the 0x0FFF_FFFF limits the resulting p*q value to be representable by s64 
+        n := cast(s64)(random_get() % 0x0FFF_FFFF);
         if is_prime(n) return n;
     }
 
