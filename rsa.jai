@@ -3,35 +3,37 @@ main :: ()
     // TODO: I didn't think random needed seeding, is Windows different to Linux?
     random_seed(cast,force(u64)to_milliseconds(current_time_monotonic()));
 
-    p := get_random_prime_number();
-    q := get_random_prime_number();
-    while p == q  q = get_random_prime_number();
+    p, q := get_prime_pair();
     n := p * q;
-    l := lcm(p - 1, q - 1);
-
-    e := calculate_e(l);
-    d := calculate_d(e, l);
+    r := (p - 1) * (q - 1);
+    e := 65537;
+    d := calculate_d(e, r);
 
     print("p = %\n", p);
     print("q = %\n", q);
     print("n = %\n", n);
-    print("l = %\n", l);
+    print("r = %\n", r);
     print("e = %\n", e);
     print("d = %\n", d);
 }
 
 #scope_file
 
-// TODO: Most people just use a constant for this? (65537)
-calculate_e :: (l: s64) -> s64
+extended_euclidean_algorithm :: (a: s64, b: s64) -> s64
 {
-    while true
+    old_r, r := a, b;
+    old_s, s := 1, 0;
+    old_t, t := 0, 1;
+    
+    while r != 0
     {
-        e := 3 + cast(s64)(random_get() % 0xFFFF) % (l - 3);
-        if gcd(e, l) == 1 return e;
+        quotient := old_r / r;
+        old_r, r = r, old_r - quotient * r;
+        old_s, s = s, old_s - quotient * s;
+        old_t, t = t, old_t - quotient * t;
     }
-
-    return 0;
+    
+    return old_r;
 }
 
 is_prime :: (n: s64) -> bool
@@ -39,6 +41,14 @@ is_prime :: (n: s64) -> bool
     sqrt_n := cast(s64)ceil(sqrt(cast(float)n));
     for i: 2..sqrt_n if n % i == 0 return false;
 	return true;
+}
+
+get_prime_pair :: () -> s64, s64
+{
+    p := get_random_prime_number();
+    q := get_random_prime_number();
+    while p == q  q = get_random_prime_number();
+    return p, q;
 }
 
 get_random_prime_number :: () -> s64
@@ -52,11 +62,9 @@ get_random_prime_number :: () -> s64
     return 0;
 }
 
-// TODO: use the extended euclid method
-calculate_d :: (e: s64, l: s64) -> s64
+calculate_d :: (e: s64, r: s64) -> s64
 {
-    for d: 1..1000000 if d * e == 1 % l return d;
-    return 0;
+    return (extended_euclidean_algorithm(e, r) + r) % r;
 }
 
 lcm :: (a: s64, b: s64) -> s64
