@@ -1,7 +1,7 @@
 main :: ()
 {
-    a := big_int("1999");
-    b := big_int("1999");
+    a := big_int("1");
+    b := big_int("-90");
 
     print("a = ");
     print(a);
@@ -99,7 +99,15 @@ operator - :: inline (n: Big_Int) -> Big_Int
 
 operator - :: inline (a: Big_Int, b: Big_Int) -> Big_Int
 {
-    assert(!a.negative && !b.negative);
+    if a.negative != b.negative
+    {
+        lhs := ifx a.negative then b else a;
+        rhs := ifx a.negative then a else b;
+        rhs.negative = false;
+        result := add_same_signed_numbers(lhs, rhs);
+        result.negative = a.negative;
+        return result;
+    }
 
     result : Big_Int;
     max_size := max(a.digits.count, b.digits.count);
@@ -111,14 +119,29 @@ operator - :: inline (a: Big_Int, b: Big_Int) -> Big_Int
 
 operator + :: inline (a: Big_Int, b: Big_Int) -> Big_Int
 {
-    if a.negative != b.negative
+    if a.negative == b.negative return add_same_signed_numbers(a, b);
+
+    // NOTE: we manually create a sign inverted version to avoid the unary-'s array copy
+    lhs := ifx a.negative then b else a;
+    rhs := ifx a.negative then a else b;
+    rhs.negative = false;
+    return lhs - rhs;
+}
+
+#scope_file
+
+remove_any_leading_zeros :: (n: *Big_Int)
+{
+    while n.digits.count && n.digits[0] == 0
     {
-        // NOTE: we manually create a sign inverted version to avoid the unary-'s array copy
-        lhs := ifx a.negative then b else a;
-        rhs := ifx a.negative then a else b;
-        rhs.negative = false;
-        return lhs - rhs;
+        array_ordered_remove_by_index(*n.digits, 0);
     }
+}
+
+// NOTE: this has to be a seperate procedure due to the circular dependency between binary+ and binary-
+add_same_signed_numbers :: inline (a: Big_Int, b: Big_Int) -> Big_Int
+{
+    assert(a.negative == b.negative);
 
     result : Big_Int;
     result.negative = a.negative;
@@ -145,16 +168,6 @@ operator + :: inline (a: Big_Int, b: Big_Int) -> Big_Int
     result.digits[0] = carry;
     remove_any_leading_zeros(*result);
     return result;
-}
-
-#scope_file
-
-remove_any_leading_zeros :: (n: *Big_Int)
-{
-    while n.digits.count && n.digits[0] == 0
-    {
-        array_ordered_remove_by_index(*n.digits, 0);
-    }
 }
 
 #import "Basic";
