@@ -1,3 +1,5 @@
+// TODO: get rid of 64 bit limit
+
 main :: ()
 {
     // TODO: I didn't think random needed seeding, is Windows different to Linux?
@@ -30,6 +32,7 @@ is_prime :: (n: s64) -> bool
 get_prime_pair :: () -> s64, s64
 {
     // TODO: the difference between the two primes has to not be too small
+    // TODO: don't generate prime numbers that are too small
     p := get_random_prime_number();
     q := get_random_prime_number();
     while p == q  q = get_random_prime_number();
