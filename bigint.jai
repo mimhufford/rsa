@@ -111,8 +111,14 @@ operator - :: inline (a: Big_Int, b: Big_Int) -> Big_Int
 
 operator + :: inline (a: Big_Int, b: Big_Int) -> Big_Int
 {
-    // TODO: using unary - makes a deep copy of the digits array which isn't actually needed here
-    if a.negative != b.negative return ifx a.negative then b-(-a) else a-(-b);
+    if a.negative != b.negative
+    {
+        // NOTE: we manually create a sign inverted version to avoid the unary-'s array copy
+        lhs := ifx a.negative then b else a;
+        rhs := ifx a.negative then a else b;
+        rhs.negative = false;
+        return lhs - rhs;
+    }
 
     result : Big_Int;
     result.negative = a.negative;
