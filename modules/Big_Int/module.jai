@@ -69,8 +69,20 @@ operator == :: inline (a: Big_Int, b: Big_Int) -> bool
 operator * :: inline (a: Big_Int, b: Big_Int) -> Big_Int
 {
     result : Big_Int;
+    result.negative = a.negative != b.negative;
     max_size := a.digits.count + b.digits.count;
     array_resize(*result.digits, max_size);
+
+    for #v2 < i: 0..a.digits.count-1
+    {
+        for #v2 < j: 0..b.digits.count-1
+        {
+            product := a.digits[i] * b.digits[j];
+            sum := product + result.digits[i + j + 1];
+            result.digits[i + j + 1] = sum % 10;
+            result.digits[i + j] += sum / 10;
+        }
+    }
 
     remove_any_leading_zeros(*result);
     return result;
