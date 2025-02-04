@@ -15,8 +15,6 @@ main :: ()
     print("a <= b = "); print("%\n", a <= b);
     print("a >  b = "); print("%\n", a > b);
     print("a >= b = "); print("%\n", a >= b);
-    print("-a = "); print(-a);
-    print("-b = "); print(-b);
 
     print("a + b = ");
     print(a + b);
@@ -93,14 +91,6 @@ operator == :: inline (a: Big_Int, b: Big_Int) -> bool
     return true;
 }
 
-operator - :: inline (n: Big_Int) -> Big_Int
-{
-    result : Big_Int;
-    result.negative = !n.negative;
-    array_add(*result.digits, ..n.digits);
-    return result;
-}
-
 operator - :: inline (a: Big_Int, b: Big_Int) -> Big_Int
 {
     if a.negative != b.negative
@@ -147,7 +137,6 @@ operator + :: inline (a: Big_Int, b: Big_Int) -> Big_Int
 {
     if a.negative == b.negative return add_same_signed_numbers(a, b);
 
-    // NOTE: we manually create a sign inverted version to avoid the unary-'s array copy
     lhs := ifx a.negative then b else a;
     rhs := ifx a.negative then a else b;
     rhs.negative = false;
