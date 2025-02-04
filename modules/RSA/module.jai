@@ -11,12 +11,19 @@ generate_keys :: () -> Big_Int, Big_Int, Big_Int, Big_Int, Big_Int
 
 is_prime :: (n: Big_Int) -> bool
 {
+    if n.digits[n.digits.count-1] == 0 return false;
+    if n.digits[n.digits.count-1] == 2 return false;
+    if n.digits[n.digits.count-1] == 4 return false;
+    if n.digits[n.digits.count-1] == 5 return false;
+    if n.digits[n.digits.count-1] == 6 return false;
+    if n.digits[n.digits.count-1] == 8 return false;
+
     limit := n / 2;
-    i := big_int(2);
+    i := big_int(3);
     while i <= limit
     {
         if n % i == 0 return false;
-        i = i + 1;
+        i = i + 2;
     }
 	return true;
 }
