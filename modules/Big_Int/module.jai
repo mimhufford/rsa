@@ -109,7 +109,7 @@ operator == :: inline (a: Big_Int, b: Big_Int) -> bool
 {
     if a.negative != b.negative return false;
 
-    for i: 0..a.digits.count-1
+    for i: 0..SIZE-1
     {
         if a.digits[i] != b.digits[i] return false;
     }
