@@ -94,10 +94,10 @@ operator <  :: inline (a: Big_Int, b: Big_Int) -> bool
     if a.negative && !b.negative return true;
     if !a.negative && b.negative return false;
 
-    for i: 0..a.digits.count-1
+    for 0..SIZE-1
     {
-        if a.digits[i] < b.digits[i] return true;
-        if b.digits[i] < a.digits[i] return false;
+        if a.digits[it] > b.digits[it] return a.negative;
+        if b.digits[it] > a.digits[it] return !a.negative;
     }
 
     return false;
@@ -149,8 +149,52 @@ operator / :: inline (a: Big_Int, b: Big_Int) -> Big_Int, Big_Int
 operator - :: inline (a: Big_Int, b: s64) -> Big_Int { return a - big_int(b); }
 operator - :: inline (a: Big_Int, b: Big_Int) -> Big_Int
 {
+    if a.negative != b.negative
+    {
+        lhs := ifx a.negative then b else a;
+        rhs := ifx a.negative then a else b;
+        rhs.negative = false;
+        result := add_same_signed_numbers(lhs, rhs);
+        result.negative = a.negative;
+        return result;
+    }
+
+    lhs := ifx a < b then b else a;
+    rhs := ifx a < b then a else b;
+
     result : Big_Int;
-    // @TODO
+    result.negative = a < b;
+
+    borrow : u8 = 0;
+
+    for #v2 < 0..SIZE-1
+    {
+        a_value := lhs.digits[it];
+        b_value := rhs.digits[it];
+        
+        if borrow > 0
+        {
+            if a_value == 0
+            {
+                a_value = 9;
+                borrow = 1;
+            }
+            else
+            {
+                a_value -= 1;
+                borrow = 0;
+            }
+        }
+
+        if a_value < b_value
+        {
+            a_value += 10;
+            borrow = 1;
+        }
+
+        result.digits[it] = a_value - b_value;
+    }
+
     return result;
 }
 
@@ -179,10 +223,8 @@ add_same_signed_numbers :: inline (a: Big_Int, b: Big_Int) -> Big_Int
     
     for #v2 < 0..SIZE-1
     {
-        a_value := a.digits[it];
-        b_value := b.digits[it];
-        next_digit := a_value + b_value + carry;
-        carry = ifx next_digit > 9 then cast(u8)1;
+        next_digit := a.digits[it] + b.digits[it] + carry;
+        carry = ifx next_digit > 9 then cast(u8, 1);
         next_digit %= 10;
         result.digits[it] = next_digit;
     }
