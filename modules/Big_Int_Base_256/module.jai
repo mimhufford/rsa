@@ -9,8 +9,16 @@ Big_Int :: struct
 // TODO: It'd be nice if print("%", my_big_int) hooked into the custom formatting
 print :: (n: Big_Int)
 {
-    // TODO: convert from base 256 to base 10 for printing
-    print("[TODO]\n");
+    // TODO: currently printing in base 16, convert to base 10 for printing
+    if n.negative print("-");
+    printed_something := false;
+    for n.digits if printed_something || it != 0
+    {
+        printed_something = true;
+        print("%", formatInt(it, base=16, minimum_digits=2));
+    }
+    if !printed_something print("00");
+    print("\n");
 }
 
 // TODO: number_of_digits was for base 10, this doesn't make much sense now
