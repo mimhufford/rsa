@@ -28,7 +28,7 @@ random_big_int :: (number_of_digits: s64) -> Big_Int
         result.digits[SIZE-number_of_digits] = cast(u8)(random_get() % 10);
     }
 
-    for SIZE-number_of_digits..SIZE-1
+    for SIZE-number_of_digits+1..SIZE-1
     {
         result.digits[it] = cast(u8)(random_get() % 10);
     }
