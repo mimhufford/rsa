@@ -42,7 +42,7 @@ get_random_prime_number :: () -> Big_Int
 {
     while true
     {
-        candidate := random_big_int(2);
+        candidate := random_big_int(2); // TODO: Currently limiting to 2 digits
         if !is_prime(candidate) continue;
         return candidate;
     }
