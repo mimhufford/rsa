@@ -142,7 +142,26 @@ operator / :: inline (a: Big_Int, b: Big_Int) -> Big_Int, Big_Int
 
     quotient, remainder : Big_Int;
     quotient.negative = a.negative != b.negative;
-    // @TODO
+    divisor := Big_Int.{ negative = false, digits = b.digits };
+
+    for d: a.digits
+    {
+        // TODO: these should be memcpys
+        for 1..SIZE-1 remainder.digits[it-1] = remainder.digits[it];
+        remainder.digits[SIZE-1] = d;
+
+        count : u8 = 0;
+        while remainder >= divisor
+        {
+            remainder = remainder - divisor;
+            count += 1;
+        }
+
+        // TODO: these should be memcpys
+        for 1..SIZE-1 quotient.digits[it-1] = quotient.digits[it];
+        quotient.digits[SIZE-1] = count;
+    }
+
     return quotient, remainder;
 }
 
