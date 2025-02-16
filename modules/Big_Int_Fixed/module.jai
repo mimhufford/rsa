@@ -159,10 +159,10 @@ operator - :: inline (a: Big_Int, b: Big_Int) -> Big_Int
         return result;
     }
 
-    // @TODO: problem if both numbers are negative
-
-    lhs := ifx a < b then b else a;
-    rhs := ifx a < b then a else b;
+    lhs, rhs := a, b;
+    lhs.negative = false;
+    rhs.negative = false;
+    if lhs < rhs then lhs, rhs = rhs, lhs;
 
     result : Big_Int;
     result.negative = a < b;
