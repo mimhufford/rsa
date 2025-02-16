@@ -16,6 +16,7 @@ main :: ()
     print("a - b = ");    print(a - b);
     print("a * b = ");    print(a * b);
     print("a / b = ");    print(a / b);
+    print("a %% b = ");  print(a % b);
     print("=================\n");
 
     report_memory_leaks();
