@@ -1,49 +1,54 @@
-// TODO: I vaguely remember some mechanism to hook into the Basic print?
+#module_parameters () (SIZE := 1023);
+
+Big_Int :: struct
+{
+    negative : bool;
+    digits : [SIZE]u8; // base 10, e.g. 123 = [0, 0, ..., 0, 1, 2, 3]
+}
+
+// TODO: It'd be nice if print("%", my_big_int) hooked into the custom formatting
 print :: (n: Big_Int)
 {
     if n.negative print("-");
-    for n.digits print("%", it);
-    if !n.digits.count print("0");
+    printed_something := false;
+    for n.digits if printed_something || it != 0
+    {
+        printed_something = true;
+        print("%", it);
+    }
+    if !printed_something print("0");
     print("\n");
 }
 
 random_big_int :: (number_of_digits: s64) -> Big_Int
 {
     result : Big_Int;
-    array_resize(*result.digits, number_of_digits);
 
-    for i: 0..number_of_digits-1
+    while result.digits[SIZE-number_of_digits] == 0
     {
-        result.digits[i] = cast(u8)(random_get() % 10);
+        result.digits[SIZE-number_of_digits] = cast(u8)(random_get() % 10);
     }
 
-    while result.digits[0] == 0
+    for SIZE-number_of_digits+1..SIZE-1
     {
-        result.digits[0] = cast(u8)(random_get() % 10);
+        result.digits[it] = cast(u8)(random_get() % 10);
     }
 
     return result;
-}
-
-Big_Int :: struct
-{
-    negative : bool;
-    
-    // NOTE: All operations guarantee there will be no leading zeros in the digits array.
-    //       This makes comparisons a much simpler, as you can rely on the array lengths.
-    digits : [..]u8;
 }
 
 big_int :: (n: s64) -> Big_Int
 {
     result : Big_Int;
     result.negative = n < 0;
-    
+
     value := ifx n < 0 then -n else n;
+    index := SIZE - 1;
     while value
     {
-        array_insert_at(*result.digits, cast(u8, value % 10), 0);
+        result.digits[index] = cast(u8, value % 10);
         value /= 10;
+        index -= 1;
     }
 
     return result;
@@ -51,19 +56,28 @@ big_int :: (n: s64) -> Big_Int
 
 big_int :: (s: string) -> Big_Int, bool
 {
-    if s.count == 0 return .{}, true;
+    if !s.count return .{}, false;
 
     result : Big_Int;
 
-    for c: s
+    if s[0] == #char "-"
     {
-        if c == #char "-" && result.negative return .{}, false;
-        if c == #char "-" { result.negative = true; continue; }
-        if c < #char "0" || c > #char "9" return .{}, false;
-        array_add(*result.digits, c - #char "0");
+        result.negative = true;
+        advance(*s);
     }
 
-    remove_any_leading_zeros(*result);
+    if s.count > SIZE return .{}, false;
+
+    index := SIZE - s.count;
+
+    while s
+    {
+        if s[0] < #char "0" || s[0] > #char "9" return .{}, false;
+        result.digits[index] = s[0] - #char "0";
+        advance(*s);
+        index += 1;
+    }
+
     return result, true;
 }
 
@@ -78,25 +92,22 @@ operator <  :: inline (a: Big_Int, b: Big_Int) -> bool
 {
     if a.negative && !b.negative return true;
     if !a.negative && b.negative return false;
-    if a.digits.count < b.digits.count return true;
-    if b.digits.count < a.digits.count return false;
 
-    for i: 0..a.digits.count-1
+    for 0..SIZE-1
     {
-        if a.digits[i] < b.digits[i] return true;
-        if b.digits[i] < a.digits[i] return false;
+        if a.digits[it] > b.digits[it] return a.negative;
+        if b.digits[it] > a.digits[it] return !a.negative;
     }
 
     return false;
 }
 
 operator != :: inline (a: Big_Int, b: s64) -> bool { return a != big_int(b); }
-operator != :: inline (a: Big_Int, b: Big_Int) -> bool { return !(a == b); }
 operator == :: inline (a: Big_Int, b: s64) -> bool { return a == big_int(b); }
+operator != :: inline (a: Big_Int, b: Big_Int) -> bool { return !(a == b); }
 operator == :: inline (a: Big_Int, b: Big_Int) -> bool
 {
     if a.negative != b.negative return false;
-    if a.digits.count != b.digits.count return false;
 
     for i: 0..a.digits.count-1
     {
@@ -111,20 +122,23 @@ operator * :: inline (a: Big_Int, b: Big_Int) -> Big_Int
 {
     result : Big_Int;
     result.negative = a.negative != b.negative;
-    array_resize(*result.digits, a.digits.count + b.digits.count);
 
-    for #v2 < i: 0..a.digits.count-1
+    for #v2 < i: 0..SIZE-1
     {
-        for #v2 < j: 0..b.digits.count-1
+        if a.digits[i] == 0 continue;
+
+        for #v2 < j: 0..SIZE-1
         {
+            if b.digits[j] == 0 continue;
+
+            index := i + j - SIZE + 1;
             product := a.digits[i] * b.digits[j];
-            sum := product + result.digits[i + j + 1];
-            result.digits[i + j + 1] = sum % 10;
-            result.digits[i + j] += sum / 10;
+            sum := product + result.digits[index];
+            result.digits[index] = sum % 10;
+            result.digits[index-1] += sum / 10;
         }
     }
 
-    remove_any_leading_zeros(*result);
     return result;
 }
 
@@ -138,17 +152,17 @@ operator % :: inline (a: Big_Int, b: Big_Int) -> Big_Int
 operator / :: inline (a: Big_Int, b: s64) -> Big_Int { return a / big_int(b); }
 operator / :: inline (a: Big_Int, b: Big_Int) -> Big_Int, Big_Int
 {
-    if !b.digits.count assert(false, "Attempt to divide by 0");
+    divisor := Big_Int.{ negative = false, digits = b.digits };
+
+    if divisor == 0 assert(false, "Attempt to divide by 0");
 
     quotient, remainder : Big_Int;
     quotient.negative = a.negative != b.negative;
-    divisor := Big_Int.{ negative = false, digits = b.digits };
 
     for d: a.digits
     {
-        array_add(*remainder.digits, d);
-
-        remove_any_leading_zeros(*remainder);
+        memcpy(remainder.digits.data, remainder.digits.data + 1, SIZE - 1);
+        remainder.digits[SIZE-1] = d;
 
         count : u8 = 0;
         while remainder >= divisor
@@ -157,10 +171,10 @@ operator / :: inline (a: Big_Int, b: Big_Int) -> Big_Int, Big_Int
             count += 1;
         }
 
-        array_add(*quotient.digits, count);
+        memcpy(quotient.digits.data, quotient.digits.data + 1, SIZE - 1);
+        quotient.digits[SIZE-1] = count;
     }
 
-    remove_any_leading_zeros(*quotient);
     return quotient, remainder;
 }
 
@@ -177,25 +191,21 @@ operator - :: inline (a: Big_Int, b: Big_Int) -> Big_Int
         return result;
     }
 
-    lhs := ifx a < b then b else a;
-    rhs := ifx a < b then a else b;
+    lhs, rhs := a, b;
+    lhs.negative = false;
+    rhs.negative = false;
+    if lhs < rhs then lhs, rhs = rhs, lhs;
 
     result : Big_Int;
-    max_size := max(a.digits.count, b.digits.count);
-    array_resize(*result.digits, max_size);
-
-    a_index := lhs.digits.count - 1;
-    b_index := rhs.digits.count - 1;
-    r_index := max_size - 1;
+    result.negative = a < b;
 
     borrow : u8 = 0;
-    while a_index >= 0 || b_index >= 0
-    {
-        defer a_index, b_index, r_index -= 1;
 
-        a_value := ifx a_index >= 0 then lhs.digits[a_index];
-        b_value := ifx b_index >= 0 then rhs.digits[b_index];
-        
+    for #v2 < 0..SIZE-1
+    {
+        a_value := lhs.digits[it];
+        b_value := rhs.digits[it];
+
         if borrow > 0
         {
             if a_value == 0
@@ -216,12 +226,9 @@ operator - :: inline (a: Big_Int, b: Big_Int) -> Big_Int
             borrow = 1;
         }
 
-        result.digits[r_index] = a_value - b_value;
+        result.digits[it] = a_value - b_value;
     }
 
-    result.negative = a < b;
-
-    remove_any_leading_zeros(*result);
     return result;
 }
 
@@ -238,14 +245,6 @@ operator + :: inline (a: Big_Int, b: Big_Int) -> Big_Int
 
 #scope_file
 
-remove_any_leading_zeros :: (n: *Big_Int)
-{
-    while n.digits.count && n.digits[0] == 0
-    {
-        array_ordered_remove_by_index(*n.digits, 0);
-    }
-}
-
 // NOTE: this has to be a seperate procedure due to the circular dependency between binary+ and binary-
 add_same_signed_numbers :: inline (a: Big_Int, b: Big_Int) -> Big_Int
 {
@@ -253,28 +252,18 @@ add_same_signed_numbers :: inline (a: Big_Int, b: Big_Int) -> Big_Int
 
     result : Big_Int;
     result.negative = a.negative;
-    max_size := 1 + max(a.digits.count, b.digits.count);
-    array_resize(*result.digits, max_size);
-
-    a_index := a.digits.count - 1;
-    b_index := b.digits.count - 1;
-    r_index := max_size - 1;
 
     carry : u8 = 0;
-    while a_index >= 0 || b_index >= 0
-    {
-        defer a_index, b_index, r_index -= 1;
 
-        a_value := ifx a_index >= 0 then a.digits[a_index];
-        b_value := ifx b_index >= 0 then b.digits[b_index];
-        next_digit := a_value + b_value + carry;
-        carry = ifx next_digit > 9 then cast(u8)1;
+    for #v2 < 0..SIZE-1
+    {
+        next_digit := a.digits[it] + b.digits[it] + carry;
+        carry = ifx next_digit > 9 then cast(u8, 1);
         next_digit %= 10;
-        result.digits[r_index] = next_digit;
+        result.digits[it] = next_digit;
     }
 
-    result.digits[0] = carry;
-    remove_any_leading_zeros(*result);
+    if carry assert(false, "Number exceeded maximum size");
     return result;
 }
 

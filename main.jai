@@ -32,7 +32,7 @@ main :: ()
     report_memory_leaks();
 }
 
-#import "Big_Int_Fixed";
+#import "Big_Int";
 #import "RSA";
 #import "Basic"()(MEMORY_DEBUGGER=true);
 #import "Random";

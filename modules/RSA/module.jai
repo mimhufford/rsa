@@ -69,6 +69,6 @@ calculate_d :: (e: Big_Int, r: Big_Int) -> Big_Int
     return x;
 }
 
-#import "Big_Int_Fixed";
+#import "Big_Int";
 #import "Basic";
 #import "Random";
