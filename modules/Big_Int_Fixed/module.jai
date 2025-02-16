@@ -42,7 +42,7 @@ big_int :: (n: s64) -> Big_Int
 {
     result : Big_Int;
     result.negative = n < 0;
-    
+
     value := ifx n < 0 then -n else n;
     index := SIZE - 1;
     while value
@@ -58,9 +58,9 @@ big_int :: (n: s64) -> Big_Int
 big_int :: (s: string) -> Big_Int, bool
 {
     if !s.count return .{}, false;
-    
+
     result : Big_Int;
-    
+
     if s[0] == #char "-"
     {
         result.negative = true;
@@ -123,7 +123,23 @@ operator * :: inline (a: Big_Int, b: Big_Int) -> Big_Int
 {
     result : Big_Int;
     result.negative = a.negative != b.negative;
-    // @TODO
+
+    for #v2 < i: 0..SIZE-1
+    {
+        if a.digits[i] == 0 continue;
+
+        for #v2 < j: 0..SIZE-1
+        {
+            if b.digits[j] == 0 continue;
+
+            index := i + j - SIZE + 1;
+            product := a.digits[i] * b.digits[j];
+            sum := product + result.digits[index];
+            result.digits[index] = sum % 10;
+            result.digits[index-1] += sum / 10;
+        }
+    }
+
     return result;
 }
 
@@ -138,7 +154,7 @@ operator / :: inline (a: Big_Int, b: s64) -> Big_Int { return a / big_int(b); }
 operator / :: inline (a: Big_Int, b: Big_Int) -> Big_Int, Big_Int
 {
     divisor := Big_Int.{ negative = false, digits = b.digits };
-    
+
     if divisor == 0 assert(false, "Attempt to divide by 0");
 
     quotient, remainder : Big_Int;
@@ -190,7 +206,7 @@ operator - :: inline (a: Big_Int, b: Big_Int) -> Big_Int
     {
         a_value := lhs.digits[it];
         b_value := rhs.digits[it];
-        
+
         if borrow > 0
         {
             if a_value == 0
@@ -239,7 +255,7 @@ add_same_signed_numbers :: inline (a: Big_Int, b: Big_Int) -> Big_Int
     result.negative = a.negative;
 
     carry : u8 = 0;
-    
+
     for #v2 < 0..SIZE-1
     {
         next_digit := a.digits[it] + b.digits[it] + carry;
