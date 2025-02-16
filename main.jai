@@ -17,6 +17,16 @@ main :: ()
     print("a * b = ");    print(a * b);
     print("a / b = ");    print(a / b);
     print("a %% b = ");  print(a % b);
+    print("=================\n\n");
+
+    print("======= RSA keygen =======\n");
+    p, q, n, e, d := generate_keys();
+    print("p = ");   print(p);
+    print("q = ");   print(q);
+    print("=================\n");
+    print("public n = ");   print(n);
+    print("public e = ");   print(e);
+    print("public d = ");   print(d);
     print("=================\n");
 
     report_memory_leaks();
