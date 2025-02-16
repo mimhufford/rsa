@@ -1,13 +1,12 @@
-#module_parameters () (SIZE := 1024);
+#module_parameters () (SIZE := 1023);
 
 Big_Int :: struct
 {
     negative : bool;
-    digits : [SIZE]u8; // stored as a decimal number
+    digits : [SIZE]u8; // base 10, e.g. 123 = [0, 0, ..., 0, 1, 2, 3]
 }
 
-// TODO: I vaguely remember some mechanism to hook into the Basic print?
-//       It'd be nice if print("%", my_big_int) hooked into the custom formatting
+// TODO: It'd be nice if print("%", my_big_int) hooked into the custom formatting
 print :: (n: Big_Int)
 {
     if n.negative print("-");
