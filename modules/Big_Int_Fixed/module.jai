@@ -137,17 +137,16 @@ operator % :: inline (a: Big_Int, b: Big_Int) -> Big_Int
 operator / :: inline (a: Big_Int, b: s64) -> Big_Int { return a / big_int(b); }
 operator / :: inline (a: Big_Int, b: Big_Int) -> Big_Int, Big_Int
 {
-    // @TODO: what happens when trying to divide by -0?
-    if b == 0 assert(false, "Attempt to divide by 0");
+    divisor := Big_Int.{ negative = false, digits = b.digits };
+    
+    if divisor == 0 assert(false, "Attempt to divide by 0");
 
     quotient, remainder : Big_Int;
     quotient.negative = a.negative != b.negative;
-    divisor := Big_Int.{ negative = false, digits = b.digits };
 
     for d: a.digits
     {
-        // TODO: these should be memcpys
-        for 1..SIZE-1 remainder.digits[it-1] = remainder.digits[it];
+        memcpy(remainder.digits.data, remainder.digits.data + 1, SIZE - 1);
         remainder.digits[SIZE-1] = d;
 
         count : u8 = 0;
@@ -157,8 +156,7 @@ operator / :: inline (a: Big_Int, b: Big_Int) -> Big_Int, Big_Int
             count += 1;
         }
 
-        // TODO: these should be memcpys
-        for 1..SIZE-1 quotient.digits[it-1] = quotient.digits[it];
+        memcpy(quotient.digits.data, quotient.digits.data + 1, SIZE - 1);
         quotient.digits[SIZE-1] = count;
     }
 
