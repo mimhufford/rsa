@@ -152,6 +152,8 @@ operator % :: inline (a: Big_Int, b: Big_Int) -> Big_Int
 operator / :: inline (a: Big_Int, b: s64) -> Big_Int { return a / big_int(b); }
 operator / :: inline (a: Big_Int, b: Big_Int) -> Big_Int, Big_Int
 {
+    // @TODO: this procedure is very slow
+
     divisor := Big_Int.{ negative = false, digits = b.digits };
 
     if divisor == 0 assert(false, "Attempt to divide by 0");
