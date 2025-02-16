@@ -1,4 +1,5 @@
-SIZE :: 1024; // @TODO: make a struct parameter with default value
+#module_parameters () (SIZE := 1024);
+
 Big_Int :: struct
 {
     negative : bool;
@@ -6,6 +7,7 @@ Big_Int :: struct
 }
 
 // TODO: I vaguely remember some mechanism to hook into the Basic print?
+//       It'd be nice if print("%", my_big_int) hooked into the custom formatting
 print :: (n: Big_Int)
 {
     if n.negative print("-");
