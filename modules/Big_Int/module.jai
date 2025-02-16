@@ -161,7 +161,7 @@ operator / :: inline (a: Big_Int, b: Big_Int) -> Big_Int, Big_Int
     quotient, remainder : Big_Int;
     quotient.negative = a.negative != b.negative;
 
-    for d: a.digits
+    for d, i: a.digits
     {
         memcpy(remainder.digits.data, remainder.digits.data + 1, SIZE - 1);
         remainder.digits[SIZE-1] = d;
@@ -173,8 +173,7 @@ operator / :: inline (a: Big_Int, b: Big_Int) -> Big_Int, Big_Int
             count += 1;
         }
 
-        memcpy(quotient.digits.data, quotient.digits.data + 1, SIZE - 1);
-        quotient.digits[SIZE-1] = count;
+        quotient.digits[i] = count;
     }
 
     return quotient, remainder;
