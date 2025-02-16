@@ -24,9 +24,9 @@ main :: ()
     print("p = ");   print(p);
     print("q = ");   print(q);
     print("=================\n");
-    print("public n = ");   print(n);
-    print("public e = ");   print(e);
-    print("public d = ");   print(d);
+    print("public  n = ");  print(n);
+    print("public  e = ");  print(e);
+    print("private d = ");  print(d);
     print("=================\n");
 
     report_memory_leaks();
