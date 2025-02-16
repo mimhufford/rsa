@@ -167,7 +167,7 @@ operator / :: inline (a: Big_Int, b: Big_Int) -> Big_Int, Big_Int
         count : u8 = 0;
         while remainder >= divisor
         {
-            remainder = remainder - divisor;
+            remainder -= divisor;
             count += 1;
         }
 
