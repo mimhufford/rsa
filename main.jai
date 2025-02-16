@@ -2,37 +2,24 @@ main :: ()
 {
     random_seed(cast,force(u64)to_milliseconds(current_time_monotonic()));
 
-    a := random_big_int(2);
-    b := random_big_int(2);
+    a := random_big_int(3);
+    b := random_big_int(3);
 
     print("======= Big_Int tests =======\n");
     print("a = ");        print(a);
     print("b = ");        print(b);
+    print("a < b = ");    print("%\n", a < b);
     print("a == b = ");   print("%\n", a == b);
-    print("a != b = ");   print("%\n", a != b);
-    print("a <  b = ");   print("%\n", a < b);
-    print("a <= b = ");   print("%\n", a <= b);
-    print("a >  b = ");   print("%\n", a > b);
-    print("a >= b = ");   print("%\n", a >= b);
     print("a + b = ");    print(a + b);
     print("a - b = ");    print(a - b);
     print("a * b = ");    print(a * b);
     print("a / b = ");    print(a / b);
-    print("a %% b = ");   print(a % b);
-    print("=================\n\n");
+    print("=================\n");
 
-    print("======= RSA keygen =======\n");
-    p, q, n, e, d := generate_keys();
-    print("p = ");   print(p);
-    print("q = ");   print(q);
-    print("=================\n");
-    print("public n = ");   print(n);
-    print("public e = ");   print(e);
-    print("public d = ");   print(d);
-    print("=================\n");
+    report_memory_leaks();
 }
 
-#import "Big_Int";
+#import "Big_Int_Fixed";
 #import "RSA";
-#import "Basic";
+#import "Basic"()(MEMORY_DEBUGGER=true);
 #import "Random";

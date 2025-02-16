@@ -116,7 +116,78 @@ operator == :: inline (a: Big_Int, b: Big_Int) -> bool
     return true;
 }
 
+operator * :: inline (a: Big_Int, b: s64) -> Big_Int { return a * big_int(b); }
+operator * :: inline (a: Big_Int, b: Big_Int) -> Big_Int
+{
+    result : Big_Int;
+    result.negative = a.negative != b.negative;
+    // @TODO
+    return result;
+}
+
+operator % :: inline (a: Big_Int, b: s64) -> Big_Int { return a % big_int(b); }
+operator % :: inline (a: Big_Int, b: Big_Int) -> Big_Int
+{
+    quotient, remainder := a / b;
+    return remainder;
+}
+
+operator / :: inline (a: Big_Int, b: s64) -> Big_Int { return a / big_int(b); }
+operator / :: inline (a: Big_Int, b: Big_Int) -> Big_Int, Big_Int
+{
+    // @TODO: what happens when trying to divide by -0?
+    if b == 0 assert(false, "Attempt to divide by 0");
+
+    quotient, remainder : Big_Int;
+    quotient.negative = a.negative != b.negative;
+    // @TODO
+    return quotient, remainder;
+}
+
+operator - :: inline (a: Big_Int, b: s64) -> Big_Int { return a - big_int(b); }
+operator - :: inline (a: Big_Int, b: Big_Int) -> Big_Int
+{
+    result : Big_Int;
+    // @TODO
+    return result;
+}
+
+operator + :: inline (a: Big_Int, b: s64) -> Big_Int { return a + big_int(b); }
+operator + :: inline (a: Big_Int, b: Big_Int) -> Big_Int
+{
+    if a.negative == b.negative return add_same_signed_numbers(a, b);
+
+    lhs := ifx a.negative then b else a;
+    rhs := ifx a.negative then a else b;
+    rhs.negative = false;
+    return lhs - rhs;
+}
+
 #scope_file
+
+// NOTE: this has to be a seperate procedure due to the circular dependency between binary+ and binary-
+add_same_signed_numbers :: inline (a: Big_Int, b: Big_Int) -> Big_Int
+{
+    assert(a.negative == b.negative);
+
+    result : Big_Int;
+    result.negative = a.negative;
+
+    carry : u8 = 0;
+    
+    for #v2 < 0..SIZE-1
+    {
+        a_value := a.digits[it];
+        b_value := b.digits[it];
+        next_digit := a_value + b_value + carry;
+        carry = ifx next_digit > 9 then cast(u8)1;
+        next_digit %= 10;
+        result.digits[it] = next_digit;
+    }
+
+    if carry assert(false, "Number exceeded maximum size");
+    return result;
+}
 
 #import "Basic";
 #import "Random";
