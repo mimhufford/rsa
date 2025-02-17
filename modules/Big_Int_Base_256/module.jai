@@ -19,11 +19,12 @@ print :: (n: Big_Int)
 
     if n.negative print("-");
 
+    mark := get_temporary_storage_mark();
+    defer set_temporary_storage_mark(mark);
+    
     // TODO: Pre-calculate the number of digits required and avoid resizing
     output : [..]u8;
     output.allocator = temp;
-    mark := get_temporary_storage_mark();
-    defer set_temporary_storage_mark(mark);
     
     while true
     {
@@ -85,7 +86,15 @@ big_int :: (s: string) -> Big_Int, bool
     if !s.count return .{}, false;
 
     result : Big_Int;
+    
+    if s[0] == #char "-"
+    {
+        result.negative = true;
+        advance(*s);
+    }
+
     // TODO: convert from base 10 to base 256
+
     return result, true;
 }
 
