@@ -93,7 +93,41 @@ big_int :: (s: string) -> Big_Int, bool
         advance(*s);
     }
 
-    // TODO: convert from base 10 to base 256
+    if !s.count return .{}, false;
+    for s if it < #char "0" || it > #char "9" return .{}, false;
+
+    mark := get_temporary_storage_mark();
+    defer set_temporary_storage_mark(mark);
+
+    digits : [..]u8;
+    digits.allocator = temp;
+    array_reserve(*digits, s.count);
+    for s array_add(*digits, it - #char "0");
+
+    index := SIZE - 1;
+    
+    while digits.count
+    {
+        remainder := 0;
+        new_digits : [..]u8;
+        new_digits.allocator = temp;
+        
+        for digits
+        {
+            current := remainder * 10 + it;
+            quotient := current / 256;
+            remainder = current % 256;
+
+            if new_digits.count || quotient > 0
+            {
+                array_add(*new_digits, cast(u8, quotient));
+            }
+        }
+
+        result.digits[index] = cast(u8, remainder);
+        index -= 1;
+        digits = new_digits;
+    }
 
     return result, true;
 }
