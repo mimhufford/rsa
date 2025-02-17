@@ -9,15 +9,39 @@ Big_Int :: struct
 // TODO: It'd be nice if print("%", my_big_int) hooked into the custom formatting
 print :: (n: Big_Int)
 {
-    // TODO: currently printing in base 16, convert to base 10 for printing
-    if n.negative print("-");
-    printed_something := false;
-    for n.digits if printed_something || it != 0
+    has_any_digits := false;
+    for n.digits if it != 0 { has_any_digits = true; break; }
+    if !has_any_digits
     {
-        printed_something = true;
-        print("%", formatInt(it, base=16, minimum_digits=2));
+        print("0\n");
+        return;
     }
-    if !printed_something print("00");
+
+    if n.negative print("-");
+
+    // TODO: Pre-calculate the number of digits required and avoid resizing
+    output : [..]u8;
+    output.allocator = temp;
+    mark := get_temporary_storage_mark();
+    defer set_temporary_storage_mark(mark);
+    
+    while true
+    {
+        has_any_digits := false;
+        for n.digits if it != 0 { has_any_digits = true; break; }
+        if !has_any_digits break;
+
+        remainder := 0;
+        for * n.digits
+        {
+            value := remainder * 256 + it.*;
+            it.* = cast(u8, value / 10);
+            remainder = value % 10;
+        }
+        array_add(*output, cast(u8, remainder));
+    }
+
+    for < output print("%", it);
     print("\n");
 }
 
